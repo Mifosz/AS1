@@ -8,37 +8,46 @@ require_once dirname(__FILE__).'/../config.php';
 
 // 1. pobranie parametrów
 
-$x = $_REQUEST ['x'];
-$y = $_REQUEST ['y'];
-$operation = $_REQUEST ['op'];
+$kwota = $_REQUEST ['kwota'];
+$procent = $_REQUEST ['procent'];
+$okres = $_REQUEST ['okres'];
+
 
 // 2. walidacja parametrów z przygotowaniem zmiennych dla widoku
 
 // sprawdzenie, czy parametry zostały przekazane
-if ( ! (isset($x) && isset($y) && isset($operation))) {
+if ( ! (isset($kwota) && isset($okres) && isset($procent))) {
 	//sytuacja wystąpi kiedy np. kontroler zostanie wywołany bezpośrednio - nie z formularza
 	$messages [] = 'Błędne wywołanie aplikacji. Brak jednego z parametrów.';
 }
 
 // sprawdzenie, czy potrzebne wartości zostały przekazane
-if ( $x == "") {
-	$messages [] = 'Nie podano liczby 1';
+if ( $kwota == "") {
+	$messages [] = 'Nie podano kwoty kredytu';
 }
-if ( $y == "") {
-	$messages [] = 'Nie podano liczby 2';
+if ( $procent == "") {
+	$messages [] = 'Nie podano oprocentowania';
+}
+
+if ( $okres == "") {
+    $messages [] = 'Nie podano okresu kredytowania';
 }
 
 //nie ma sensu walidować dalej gdy brak parametrów
 if (empty( $messages )) {
 	
 	// sprawdzenie, czy $x i $y są liczbami całkowitymi
-	if (! is_numeric( $x )) {
+	if (! is_numeric( $kwota )) {
 		$messages [] = 'Pierwsza wartość nie jest liczbą całkowitą';
 	}
 	
-	if (! is_numeric( $y )) {
+	if (! is_numeric( $procent )) {
 		$messages [] = 'Druga wartość nie jest liczbą całkowitą';
-	}	
+	}
+
+    if (! is_numeric( $okres )) {
+        $messages [] = 'Trzecia wartość nie jest liczbą całkowitą';
+    }
 
 }
 
@@ -47,24 +56,23 @@ if (empty( $messages )) {
 if (empty ( $messages )) { // gdy brak błędów
 	
 	//konwersja parametrów na int
-	$x = intval($x);
-	$y = intval($y);
-	
+	$kwota = intval($kwota);
+	$procent = intval($procent);
+    $okres = intval($okres);
+    $raty_w_roku =12;
+    $liczba_rat = 12*$okres;
+    $e =0;
+    $r =0;
+    $t =0;
+
 	//wykonanie operacji
-	switch ($operation) {
-		case 'minus' :
-			$result = $x - $y;
-			break;
-		case 'times' :
-			$result = $x * $y;
-			break;
-		case 'div' :
-			$result = $x / $y;
-			break;
-		default :
-			$result = $x + $y;
-			break;
-	}
+       $e = $kwota*$procent;
+       $r = ($raty_w_roku+$procent);
+       $t = $raty_w_roku/$r;
+       $t = $t^$liczba_rat;
+       $h = 1-$t;
+       $g = $raty_w_roku*$h;
+    $result = $e/$g;
 }
 
 // 4. Wywołanie widoku z przekazaniem zmiennych

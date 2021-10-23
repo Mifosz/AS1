@@ -8,17 +8,12 @@
 <body>
 
 <form action="<?php print(_APP_URL);?>/app/calc.php" method="post">
-	<label for="id_x">Liczba 1: </label>
-	<input id="id_x" type="text" name="x" value="<?php print($x); ?>" /><br />
-	<label for="id_op">Operacja: </label>
-	<select name="op">
-		<option value="plus">+</option>
-		<option value="minus">-</option>
-		<option value="times">*</option>
-		<option value="div">/</option>
-	</select><br />
-	<label for="id_y">Liczba 2: </label>
-	<input id="id_y" type="text" name="y" value="<?php print($y); ?>" /><br />
+	<label for="id_kwota">Kwota kredytu: </label>
+	<input id="id_kwota" type="text" name="kwota" value="<?php print($kwota); ?>" /><br />
+	<label for="id_procent">Oprocentowanie</label>
+    <input id="id_procent" type="text" name="procent" value="<?php print($procent); ?>" /><br />
+	<label for="id_okres">Okres w latach: </label>
+	<input id="id_okres" type="text" name="okres" value="<?php print($okres); ?>" /><br />
 	<input type="submit" value="Oblicz" />
 </form>	
 
