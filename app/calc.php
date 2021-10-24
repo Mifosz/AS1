@@ -40,10 +40,6 @@ if (empty( $messages )) {
 	if (! is_numeric( $kwota )) {
 		$messages [] = 'Pierwsza wartość nie jest liczbą całkowitą';
 	}
-	
-	if (! is_numeric( $procent )) {
-		$messages [] = 'Druga wartość nie jest liczbą całkowitą';
-	}
 
     if (! is_numeric( $okres )) {
         $messages [] = 'Trzecia wartość nie jest liczbą całkowitą';
@@ -57,22 +53,15 @@ if (empty ( $messages )) { // gdy brak błędów
 	
 	//konwersja parametrów na int
 	$kwota = intval($kwota);
-	$procent = intval($procent);
     $okres = intval($okres);
     $raty_w_roku =12;
     $liczba_rat = 12*$okres;
-    $e =0;
-    $r =0;
-    $t =0;
 
 	//wykonanie operacji
-       $e = $kwota*$procent;
-       $r = ($raty_w_roku+$procent);
-       $t = $raty_w_roku/$r;
-       $t = $t^$liczba_rat;
-       $h = 1-$t;
-       $g = $raty_w_roku*$h;
-    $result = $e/$g;
+      $b = $kwota *($procent/100);
+      $l = $b*$okres;
+      $g = $kwota + $l;
+    $result = $g/$liczba_rat;
 }
 
 // 4. Wywołanie widoku z przekazaniem zmiennych
