@@ -1,70 +1,88 @@
 <?php
-// KONTROLER strony kalkulatora
 require_once dirname(__FILE__).'/../config.php';
+
+// KONTROLER strony kalkulatora
 
 // W kontrolerze niczego nie wysyła się do klienta.
 // Wysłaniem odpowiedzi zajmie się odpowiedni widok.
 // Parametry do widoku przekazujemy przez zmienne.
 
-// 1. pobranie parametrów
+//ochrona kontrolera - poniższy skrypt przerwie przetwarzanie w tym punkcie gdy użytkownik jest niezalogowany
+include _ROOT_PATH.'/app/security/check.php';
 
-$kwota = $_REQUEST ['kwota'];
-$procent = $_REQUEST ['procent'];
-$okres = $_REQUEST ['okres'];
+//pobranie parametrów
+function getParams(&$x,&$y,&$oprocentowanie){
+	$x = isset($_REQUEST['x']) ? $_REQUEST['x'] : null;
+	$y = isset($_REQUEST['y']) ? $_REQUEST['y'] : null;
+	$oprocentowanie = isset($_REQUEST['op']) ? $_REQUEST['op'] : null;
 
-
-// 2. walidacja parametrów z przygotowaniem zmiennych dla widoku
-
-// sprawdzenie, czy parametry zostały przekazane
-if ( ! (isset($kwota) && isset($okres) && isset($procent))) {
-	//sytuacja wystąpi kiedy np. kontroler zostanie wywołany bezpośrednio - nie z formularza
-	$messages [] = 'Błędne wywołanie aplikacji. Brak jednego z parametrów.';
 }
 
-// sprawdzenie, czy potrzebne wartości zostały przekazane
-if ( $kwota == "") {
-	$messages [] = 'Nie podano kwoty kredytu';
-}
-if ( $procent == "") {
-	$messages [] = 'Nie podano oprocentowania';
-}
+//walidacja parametrów z przygotowaniem zmiennych dla widoku
+function validate(&$x,&$y,&$oprocentowanie,&$messages){
+	// sprawdzenie, czy parametry zostały przekazane
+	if ( ! (isset($x) && isset($y) && isset($oprocentowanie))) {
+		// sytuacja wystąpi kiedy np. kontroler zostanie wywołany bezpośrednio - nie z formularza
+		// teraz zakładamy, ze nie jest to błąd. Po prostu nie wykonamy obliczeń
+		return false;
 
-if ( $okres == "") {
-    $messages [] = 'Nie podano okresu kredytowania';
-}
-
-//nie ma sensu walidować dalej gdy brak parametrów
-if (empty( $messages )) {
-	
-	// sprawdzenie, czy $x i $y są liczbami całkowitymi
-	if (! is_numeric( $kwota )) {
-		$messages [] = 'Pierwsza wartość nie jest liczbą całkowitą';
 	}
 
-    if (! is_numeric( $okres )) {
-        $messages [] = 'Trzecia wartość nie jest liczbą całkowitą';
-    }
+	// sprawdzenie, czy potrzebne wartości zostały przekazane
+	if ( $x == "") {
+		$messages [] = 'Nie podano liczby 1';
+	}
+	if ( $y == "") {
+		$messages [] = 'Nie podano liczby 2';
+	}
 
-}
-
-// 3. wykonaj zadanie jeśli wszystko w porządku
-
-if (empty ( $messages )) { // gdy brak błędów
+	//nie ma sensu walidować dalej gdy brak parametrów
+	if (count ( $messages ) != 0) return false;
 	
-	//konwersja parametrów na int
-	$kwota = intval($kwota);
-    $okres = intval($okres);
-    $raty_w_roku =12;
-    $liczba_rat = 12*$okres;
+	// sprawdzenie, czy $x i $y są liczbami całkowitymi
+	if (! is_numeric( $x )) {
+		$messages [] = 'Pierwsza wartość nie jest liczbą całkowitą';
+	}
+	
+	if (! is_numeric( $y )) {
+		$messages [] = 'Druga wartość nie jest liczbą całkowitą';
+	}	
 
-	//wykonanie operacji
-      $b = $kwota *($procent/100);
-      $l = $b*$okres;
-      $g = $kwota + $l;
-    $result = $g/$liczba_rat;
+	if (count ( $messages ) != 0) return false;
+	else return true;
 }
 
-// 4. Wywołanie widoku z przekazaniem zmiennych
+function process(&$x,&$y,&$oprocentowanie,&$result){
+    global $role;
+
+
+
+	//konwersja parametrów na int
+	$x = intval($x);
+	$y = intval($y);
+	$oprocentowanie = intval($oprocentowanie);
+	//wykonanie operacji
+    $a = $x*($oprocentowanie/100);
+    $b = $a*$y;
+    $g = $b+$x;
+    $result = $g/($y*12);
+
+
+}
+
+//definicja zmiennych kontrolera
+$x = null;
+$y = null;
+$oprocentowanie = null;
+$result = null;
+$messages = array();
+//pobierz parametry i wykonaj zadanie jeśli wszystko w porządku
+getParams($x,$y,$oprocentowanie);
+if ( validate($x,$y,$oprocentowanie,$messages) ) { // gdy brak błędów
+	process($x,$y,$oprocentowanie,$result);
+}
+
+// Wywołanie widoku z przekazaniem zmiennych
 // - zainicjowane zmienne ($messages,$x,$y,$operation,$result)
 //   będą dostępne w dołączonym skrypcie
 include 'calc_view.php';
